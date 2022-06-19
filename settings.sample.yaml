@@ -1,0 +1,14 @@
+tapo:
+  username:
+  password:
+  # how often to fetch the device usage of devices
+  refresh_rate_s:
+mqtt:
+  # tcp://host:port
+  address:
+  topic_name:
+devices:
+  - name:
+    ip_address:
+    # set to `false` for plugs that are always on and the time usage becomes irrelevant
+    record_time_usage:
