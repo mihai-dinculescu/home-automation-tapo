@@ -1,7 +1,5 @@
-use std::sync::Arc;
-
 use actix::Message;
-use tapo::{ApiClient, DeviceUsageResult, GenericDevice};
+use tapo::DeviceUsageResult;
 
 use crate::settings::Device;
 
@@ -11,9 +9,7 @@ pub struct DevicesHealthCheckMessage;
 
 #[derive(Debug, Message)]
 #[rtype(result = "()")]
-pub struct GetDeviceDataMessage {
-    pub client: Arc<ApiClient<GenericDevice>>,
-}
+pub struct GetDeviceDataMessage;
 
 #[derive(Debug, Message)]
 #[rtype(result = "()")]
@@ -21,7 +17,3 @@ pub struct DeviceUsageMessage {
     pub device: Device,
     pub device_usage: DeviceUsageResult,
 }
-
-#[derive(Debug, Message)]
-#[rtype(result = "()")]
-pub struct StopMessage;
