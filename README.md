@@ -12,7 +12,16 @@ cargo run
 
 ## Docker
 
+### linux/amd64 & linux/arm64
+
 ```bash
 docker build -t home-automation-tapo .
+docker run -d home-automation-tapo
+```
+
+### linux/arm/v7
+
+```bash
+docker build -f Dockerfile-ARMv7.dockerfile -t home-automation-tapo .
 docker run -d home-automation-tapo
 ```
