@@ -8,6 +8,12 @@ pub struct Tapo {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+pub struct Api {
+    pub host: String,
+    pub port: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 pub struct Mqtt {
     pub address: String,
     pub topic_name: String,
@@ -22,6 +28,7 @@ pub struct Device {
 
 #[derive(Debug, Deserialize)]
 pub struct Settings {
+    pub api: Api,
     pub tapo: Tapo,
     pub mqtt: Mqtt,
     pub devices: Vec<Device>,

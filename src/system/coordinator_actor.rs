@@ -6,25 +6,32 @@ use actix::{Actor, Addr, AsyncContext, Context, Handler, WrapFuture};
 use log::{debug, info};
 
 use crate::settings::Settings;
+use crate::system::api::api_actor::ApiActor;
 use crate::system::device_actor::DeviceActor;
-use crate::system::messages::{DeviceUsageMessage, DevicesHealthCheckMessage};
+use crate::system::messages::{DeviceUsageMessage, HealthCheckMessage};
 use crate::system::mqtt_actor::MqttActor;
 
 #[derive(Debug)]
 pub struct CoordinatorActor {
     settings: Settings,
+    api_actor_addr: Addr<ApiActor>,
     mqtt_actor_addr: Addr<MqttActor>,
     device_actors: HashMap<String, Addr<DeviceActor>>,
 }
 
 impl CoordinatorActor {
     pub fn new() -> Self {
-        let settings = Settings::new().unwrap();
+        let settings = Settings::new().expect("failed to read the settings");
+
         let mqtt_actor = MqttActor::new(settings.mqtt.clone());
         let mqtt_actor_addr = mqtt_actor.start();
 
+        let api_actor = ApiActor::new(settings.api.clone(), settings.tapo.clone());
+        let api_actor_addr = api_actor.start();
+
         Self {
             settings,
+            api_actor_addr,
             mqtt_actor_addr,
             device_actors: HashMap::new(),
         }
@@ -44,7 +51,7 @@ impl Actor for CoordinatorActor {
 
             loop {
                 interval.tick().await;
-                addr.try_send(DevicesHealthCheckMessage)
+                addr.try_send(HealthCheckMessage)
                     .expect("failed to send message to CoordinatorActor");
             }
         }
@@ -58,12 +65,25 @@ impl Actor for CoordinatorActor {
     }
 }
 
-impl Handler<DevicesHealthCheckMessage> for CoordinatorActor {
+impl Handler<HealthCheckMessage> for CoordinatorActor {
     type Result = ();
 
-    fn handle(&mut self, _: DevicesHealthCheckMessage, ctx: &mut Context<Self>) -> Self::Result {
-        info!("DevicesHealthCheck");
+    fn handle(&mut self, _: HealthCheckMessage, ctx: &mut Context<Self>) -> Self::Result {
+        info!("HealthCheckMessage");
 
+        // check api
+        if !self.api_actor_addr.connected() {
+            let api_actor = ApiActor::new(self.settings.api.clone(), self.settings.tapo.clone());
+            self.api_actor_addr = api_actor.start();
+        }
+
+        // check mqtt
+        if !self.mqtt_actor_addr.connected() {
+            let mqtt_actor = MqttActor::new(self.settings.mqtt.clone());
+            self.mqtt_actor_addr = mqtt_actor.start();
+        }
+
+        // check devices
         let addr = ctx.address();
 
         for device in &self.settings.devices {

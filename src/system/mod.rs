@@ -1,3 +1,4 @@
+mod api;
 pub mod coordinator_actor;
 mod device_actor;
 mod messages;

@@ -5,7 +5,7 @@ use crate::settings::Device;
 
 #[derive(Debug, Message)]
 #[rtype(result = "()")]
-pub struct DevicesHealthCheckMessage;
+pub struct HealthCheckMessage;
 
 #[derive(Debug, Message)]
 #[rtype(result = "()")]

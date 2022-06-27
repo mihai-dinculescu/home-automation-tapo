@@ -1,3 +1,6 @@
+api:
+  host:
+  port:
 tapo:
   username:
   password:
