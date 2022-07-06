@@ -1,9 +1,8 @@
 use actix::{Actor, AsyncContext, Context, WrapFuture};
-use actix_web::{web, App, HttpServer};
 use log::debug;
 
 use crate::settings::{Api, Tapo};
-use crate::system::api::handlers;
+use crate::system::api::web_server::WebServer;
 
 #[derive(Debug)]
 pub struct ApiActor {
@@ -26,23 +25,20 @@ impl Actor for ApiActor {
     fn started(&mut self, ctx: &mut Self::Context) {
         debug!("Api Actor started...");
 
-        let addr = format!("{}:{}", self.config_api.host, self.config_api.port);
+        let host = self.config_api.host.clone();
+        let port = self.config_api.port;
+
         let tapo = self.config_tapo.clone();
 
         let fut = async move {
-            let data = web::Data::new(tapo);
+            let web_server = WebServer::new(&host, port, tapo)
+                .await
+                .expect("failed to create the API");
 
-            HttpServer::new(move || {
-                App::new()
-                    .app_data(data.clone())
-                    .route("/device", web::get().to(handlers::get_device))
-                    .route("/device", web::post().to(handlers::set_device))
-            })
-            .bind(addr)
-            .expect("failed to bind to the API socket")
-            .run()
-            .await
-            .expect("failed to start the API");
+            web_server
+                .run_until_stopped()
+                .await
+                .expect("failed to start the API");
         }
         .into_actor(self);
 

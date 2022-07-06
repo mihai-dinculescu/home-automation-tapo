@@ -10,7 +10,7 @@ pub struct Tapo {
 #[derive(Debug, Clone, Deserialize)]
 pub struct Api {
     pub host: String,
-    pub port: String,
+    pub port: u16,
 }
 
 #[derive(Debug, Clone, Deserialize)]

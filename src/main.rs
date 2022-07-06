@@ -1,10 +1,7 @@
 use actix::{Actor, Arbiter, System};
 use log::{error, LevelFilter};
 
-mod settings;
-mod system;
-
-use system::coordinator_actor::CoordinatorActor;
+use home_automation_tapo::system::coordinator_actor::CoordinatorActor;
 
 fn main() {
     let log_level = std::env::var("RUST_LOG")

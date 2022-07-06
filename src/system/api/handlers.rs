@@ -1,9 +1,25 @@
+use actix_web::http::StatusCode;
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use tapo::{ApiClient, GenericDevice};
 
 use crate::settings::Tapo;
 use crate::system::api::errors::ApiError;
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct ApiStatusResponse {
+    pub code: u16,
+    pub message: String,
+}
+
+impl ApiStatusResponse {
+    pub fn new(status_code: StatusCode, message: &str) -> Self {
+        Self {
+            code: status_code.as_u16(),
+            message: message.to_string(),
+        }
+    }
+}
 
 #[derive(Deserialize)]
 pub struct SetDevicePayload {
@@ -20,6 +36,11 @@ pub struct GetDevicePayload {
 pub struct DeviceResponse {
     ip_address: String,
     device_on: bool,
+}
+
+pub async fn health_check() -> HttpResponse {
+    let body = ApiStatusResponse::new(StatusCode::OK, "OK");
+    HttpResponse::Ok().json(body)
 }
 
 pub async fn get_device(

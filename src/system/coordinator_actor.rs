@@ -38,6 +38,12 @@ impl CoordinatorActor {
     }
 }
 
+impl Default for CoordinatorActor {
+    fn default() -> Self {
+        CoordinatorActor::new()
+    }
+}
+
 impl Actor for CoordinatorActor {
     type Context = Context<Self>;
 
