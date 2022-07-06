@@ -2,6 +2,7 @@
 name = "home-automation-tapo"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 
 [dependencies]
 actix = "0.13"
