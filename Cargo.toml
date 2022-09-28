@@ -19,5 +19,5 @@ tapo = "0.2"
 
 [dev-dependencies]
 actix-rt = "2"
-tokio = { version = "1.19", features = ["rt", "macros"] }
+tokio = { version = "1.21", features = ["rt", "macros"] }
 reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls"] }
