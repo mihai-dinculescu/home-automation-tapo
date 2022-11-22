@@ -6,7 +6,7 @@ use tapo::{ApiClient, GenericDevice};
 use crate::settings::Tapo;
 use crate::system::api::errors::ApiError;
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ApiStatusResponse {
     pub code: u16,
     pub message: String,
