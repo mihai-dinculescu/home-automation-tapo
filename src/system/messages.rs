@@ -1,5 +1,5 @@
 use actix::Message;
-use tapo::DeviceUsageResult;
+use tapo::responses::DeviceUsageResult;
 
 use crate::settings::Device;
 

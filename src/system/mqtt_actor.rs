@@ -3,7 +3,7 @@ use log::{debug, error, info};
 use paho_mqtt::{AsyncClient, Message, QOS_1};
 use serde::Serialize;
 use serde_json::json;
-use tapo::DeviceUsageResult;
+use tapo::responses::DeviceUsageResult;
 
 use crate::{
     settings::{Device, Mqtt},
