@@ -10,7 +10,7 @@ COPY . .
 RUN cargo build --release
 
 # Runtime stage
-FROM debian:buster-slim AS runtime
+FROM debian:bookworm-slim AS runtime
 
 RUN apt-get update && \
     apt-get -y upgrade && \
