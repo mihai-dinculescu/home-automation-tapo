@@ -18,7 +18,7 @@ impl TestApp {
             .expect("Failed to build API");
 
         let application_port = web_server.port();
-        let _ = tokio::spawn(web_server.run_until_stopped());
+        tokio::spawn(web_server.run_until_stopped());
 
         Self {
             address: format!("http://localhost:{}", application_port),
