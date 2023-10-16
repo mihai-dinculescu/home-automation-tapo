@@ -1,7 +1,7 @@
 use actix_web::http::StatusCode;
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
-use tapo::{ApiClient, GenericDevice};
+use tapo::ApiClient;
 
 use crate::settings::Tapo;
 use crate::system::api::errors::ApiError;
@@ -35,7 +35,7 @@ pub struct GetDevicePayload {
 #[derive(Serialize)]
 pub struct DeviceResponse {
     ip_address: String,
-    device_on: bool,
+    device_on: Option<bool>,
 }
 
 pub async fn health_check() -> HttpResponse {
@@ -47,16 +47,14 @@ pub async fn get_device(
     config: web::Data<Tapo>,
     device: web::Json<GetDevicePayload>,
 ) -> Result<HttpResponse, ApiError> {
-    let client = ApiClient::<GenericDevice>::new(
-        device.ip_address.clone(),
-        config.username.clone(),
-        config.password.clone(),
-        true,
-    )
-    .await
-    .map_err(|_| ApiError::BadRequest("failed to connect to the device".to_string()))?;
+    let client = ApiClient::new(config.username.clone(), config.password.clone())
+        .map_err(|_| ApiError::BadRequest("failed to initialise the tapo client".to_string()))?;
+    let handler = client
+        .generic_device(device.ip_address.clone())
+        .await
+        .map_err(|_| ApiError::BadRequest("failed to connect to the device".to_string()))?;
 
-    let device_info = client
+    let device_info = handler
         .get_device_info()
         .await
         .map_err(|_| ApiError::InternalServerError)?;
@@ -73,22 +71,20 @@ pub async fn set_device(
     config: web::Data<Tapo>,
     device: web::Json<SetDevicePayload>,
 ) -> Result<HttpResponse, ApiError> {
-    let client = ApiClient::<GenericDevice>::new(
-        device.ip_address.clone(),
-        config.username.clone(),
-        config.password.clone(),
-        true,
-    )
-    .await
-    .map_err(|_| ApiError::BadRequest("failed to connect to the device".to_string()))?;
+    let client = ApiClient::new(config.username.clone(), config.password.clone())
+        .map_err(|_| ApiError::BadRequest("failed to initialise the tapo client".to_string()))?;
+    let handler = client
+        .generic_device(device.ip_address.clone())
+        .await
+        .map_err(|_| ApiError::BadRequest("failed to connect to the device".to_string()))?;
 
     if device.device_on {
-        client
+        handler
             .on()
             .await
             .map_err(|_| ApiError::InternalServerError)?
     } else {
-        client
+        handler
             .off()
             .await
             .map_err(|_| ApiError::InternalServerError)?
@@ -96,7 +92,7 @@ pub async fn set_device(
 
     let result = DeviceResponse {
         ip_address: device.ip_address.clone(),
-        device_on: device.device_on,
+        device_on: Some(device.device_on),
     };
 
     Ok(HttpResponse::Ok().json(result))

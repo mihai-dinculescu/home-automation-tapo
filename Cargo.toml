@@ -6,18 +6,21 @@ license = "MIT"
 
 [dependencies]
 actix = "0.13"
-actix-web = "4.2"
+actix-web = "4.4"
 anyhow = "1.0"
 config = "0.13"
 derive_more = "0.99"
 log = "0.4"
-paho-mqtt = "0.11"
-pretty_env_logger = "0.4"
+paho-mqtt = "0.12"
+pretty_env_logger = "0.5"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tapo = "0.3"
+tapo = "0.7"
 
 [dev-dependencies]
-actix-rt = "2.7"
-tokio = { version = "1.22", features = ["rt", "macros"] }
-reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls"] }
+actix-rt = "2.9"
+tokio = { version = "1.33", features = ["rt", "macros"] }
+reqwest = { version = "0.11", default-features = false, features = [
+    "json",
+    "rustls-tls",
+] }

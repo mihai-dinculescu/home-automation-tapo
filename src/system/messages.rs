@@ -1,5 +1,5 @@
 use actix::Message;
-use tapo::responses::DeviceUsageResult;
+use tapo::responses::DeviceUsageEnergyMonitoringResult;
 
 use crate::settings::Device;
 
@@ -15,5 +15,5 @@ pub struct GetDeviceDataMessage;
 #[rtype(result = "()")]
 pub struct DeviceUsageMessage {
     pub device: Device,
-    pub device_usage: DeviceUsageResult,
+    pub device_usage: DeviceUsageEnergyMonitoringResult,
 }

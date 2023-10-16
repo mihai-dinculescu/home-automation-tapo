@@ -14,7 +14,7 @@ impl WebServer {
     pub async fn new(host: &str, port: u16, tapo: Tapo) -> Result<Self, anyhow::Error> {
         let address = format!("{host}:{port}",);
 
-        let listener = TcpListener::bind(&address)?;
+        let listener = TcpListener::bind(address)?;
         let port = listener.local_addr()?.port();
 
         let data = web::Data::new(tapo);

@@ -3,7 +3,7 @@ use log::{debug, error, info};
 use paho_mqtt::{AsyncClient, Message, QOS_1};
 use serde::Serialize;
 use serde_json::json;
-use tapo::responses::DeviceUsageResult;
+use tapo::responses::DeviceUsageEnergyMonitoringResult;
 
 use crate::{
     settings::{Device, Mqtt},
@@ -93,8 +93,8 @@ struct MqttMessagePayload {
     power_usage_past30: u64,
 }
 
-impl From<(Device, DeviceUsageResult)> for MqttMessagePayload {
-    fn from(data: (Device, DeviceUsageResult)) -> Self {
+impl From<(Device, DeviceUsageEnergyMonitoringResult)> for MqttMessagePayload {
+    fn from(data: (Device, DeviceUsageEnergyMonitoringResult)) -> Self {
         let (device, dur) = data;
 
         MqttMessagePayload {

@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use actix::{clock::interval, Actor, Addr, AsyncContext, Context, Handler, WrapFuture};
 use log::{debug, error};
-use tapo::{ApiClient, GenericDevice};
+use tapo::ApiClient;
 
 use crate::{
     settings::{Device, Tapo},
@@ -39,7 +39,7 @@ impl Actor for DeviceActor {
         debug!("Device Actor for '{}' started...", self.device.name);
 
         let addr = ctx.address();
-        let refresh_rate = Duration::from_secs(self.config.refresh_rate_s as u64);
+        let refresh_rate = Duration::from_secs(self.config.refresh_rate_s);
 
         let fut = async move {
             let mut interval = interval(refresh_rate);
@@ -76,15 +76,10 @@ impl Handler<GetDeviceDataMessage> for DeviceActor {
 
         let fut = async move {
             let result = async {
-                let client = ApiClient::<GenericDevice>::new(
-                    device.ip_address.clone(),
-                    tapo_username,
-                    tapo_password,
-                    true,
-                )
-                .await?;
+                let client = ApiClient::new(tapo_username, tapo_password)?;
+                let handler = client.p110(device.ip_address.clone()).await?;
 
-                let device_usage = client.get_device_usage().await?;
+                let device_usage = handler.get_device_usage().await?;
 
                 Ok::<_, anyhow::Error>(device_usage)
             }
