@@ -34,6 +34,6 @@ RUN apt-get update && \
 
 WORKDIR /app
 COPY --from=builder /app/target/release/home-automation-tapo home-automation-tapo
-COPY settings.yaml settings.yaml
+COPY settings.sample.yaml settings.yaml
 
 ENTRYPOINT ["/app/home-automation-tapo"]
