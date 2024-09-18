@@ -1,10 +1,10 @@
 # Caching stage
-FROM lukemathwalker/cargo-chef:latest-rust-1.73 as planner
+FROM lukemathwalker/cargo-chef:latest-rust-1.81 as planner
 WORKDIR /app
 COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
-FROM lukemathwalker/cargo-chef:latest-rust-1.73 as cacher
+FROM lukemathwalker/cargo-chef:latest-rust-1.81 as cacher
 
 RUN apt-get update && \
     apt-get -y upgrade && \
@@ -16,7 +16,7 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 
 # Builder stage
-FROM rust:1.73 AS builder
+FROM rust:1.81 AS builder
 
 RUN rustup component add rustfmt
 WORKDIR /app

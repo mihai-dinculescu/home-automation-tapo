@@ -1,5 +1,5 @@
 # Builder stage
-FROM rust:1.73 AS builder
+FROM rust:1.81 AS builder
 
 RUN apt-get update && \
     apt-get -y upgrade && \
