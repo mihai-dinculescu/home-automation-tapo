@@ -47,8 +47,7 @@ pub async fn get_device(
     config: web::Data<Tapo>,
     device: web::Json<GetDevicePayload>,
 ) -> Result<HttpResponse, ApiError> {
-    let client = ApiClient::new(config.username.clone(), config.password.clone())
-        .map_err(|_| ApiError::BadRequest("failed to initialise the tapo client".to_string()))?;
+    let client = ApiClient::new(config.username.clone(), config.password.clone());
     let handler = client
         .generic_device(device.ip_address.clone())
         .await
@@ -71,8 +70,7 @@ pub async fn set_device(
     config: web::Data<Tapo>,
     device: web::Json<SetDevicePayload>,
 ) -> Result<HttpResponse, ApiError> {
-    let client = ApiClient::new(config.username.clone(), config.password.clone())
-        .map_err(|_| ApiError::BadRequest("failed to initialise the tapo client".to_string()))?;
+    let client = ApiClient::new(config.username.clone(), config.password.clone());
     let handler = client
         .generic_device(device.ip_address.clone())
         .await

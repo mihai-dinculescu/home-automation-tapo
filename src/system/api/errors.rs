@@ -3,10 +3,10 @@ use derive_more::Display;
 
 #[derive(Debug, Display)]
 pub enum ApiError {
-    #[display(fmt = "Internal Server Error")]
+    #[display("Internal Server Error")]
     InternalServerError,
 
-    #[display(fmt = "BadRequest: {}", _0)]
+    #[display("BadRequest: {}", _0)]
     BadRequest(String),
 }
 

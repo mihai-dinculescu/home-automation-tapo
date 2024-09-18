@@ -76,7 +76,7 @@ impl Handler<GetDeviceDataMessage> for DeviceActor {
 
         let fut = async move {
             let result = async {
-                let client = ApiClient::new(tapo_username, tapo_password)?;
+                let client = ApiClient::new(tapo_username, tapo_password);
                 let handler = client.p110(device.ip_address.clone()).await?;
 
                 let device_usage = handler.get_device_usage().await?;
