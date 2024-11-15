@@ -86,11 +86,11 @@ struct MqttMessagePayload {
     // Past 30 days time usage in minutes
     time_usage_past30: Option<u64>,
     // Today's power usage in watt-hour (Wh)
-    power_usage_today: u64,
+    power_usage_today: Option<u64>,
     // Past 7 days power usage in watt-hour (Wh)
-    power_usage_past7: u64,
+    power_usage_past7: Option<u64>,
     // Today's power usage in watt-hour (Wh)
-    power_usage_past30: u64,
+    power_usage_past30: Option<u64>,
 }
 
 impl From<(Device, DeviceUsageEnergyMonitoringResult)> for MqttMessagePayload {
@@ -100,15 +100,15 @@ impl From<(Device, DeviceUsageEnergyMonitoringResult)> for MqttMessagePayload {
         MqttMessagePayload {
             device_name: device.name,
             time_usage_today: match device.record_time_usage {
-                true => Some(dur.time_usage.today),
+                true => dur.time_usage.today,
                 false => None,
             },
             time_usage_past7: match device.record_time_usage {
-                true => Some(dur.time_usage.past7),
+                true => dur.time_usage.past7,
                 false => None,
             },
             time_usage_past30: match device.record_time_usage {
-                true => Some(dur.time_usage.past30),
+                true => dur.time_usage.past30,
                 false => None,
             },
             power_usage_today: dur.power_usage.today,

@@ -13,13 +13,13 @@ derive_more = { version = "1.0", features = ["display"] }
 log = "0.4"
 paho-mqtt = "0.12"
 pretty_env_logger = "0.5"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 tapo = "0.7"
 
 [dev-dependencies]
 actix-rt = "2.10"
-tokio = { version = "1.40", features = ["rt", "macros"] }
+tokio = { version = "1.41", features = ["rt", "macros"] }
 reqwest = { version = "0.12", default-features = false, features = [
     "json",
     "rustls-tls",
