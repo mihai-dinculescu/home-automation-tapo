@@ -2443,9 +2443,9 @@ dependencies = [
 
 [[package]]
 name = "tapo"
-version = "0.7.17"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cbbe1035206d9b531ff7fa54dc5c348520a6c729b48c6bc47b829d8a713c2101"
+checksum = "3ee6004ebf6da340b76f30a0c97e33f9d631bb388d85a01c32bda13776961a82"
 dependencies = [
  "aes",
  "anyhow",
@@ -2465,7 +2465,7 @@ dependencies = [
  "serde_with",
  "sha1",
  "sha2",
- "thiserror 1.0.69",
+ "thiserror 2.0.3",
  "tokio",
  "uuid",
 ]
@@ -2586,9 +2586,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tokio"
-version = "1.41.1"
+version = "1.42.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22cfb5bee7a6a52939ca9224d6ac897bb669134078daa8735560897f69de4d33"
+checksum = "5cec9b21b0450273377fc97bd4c33a8acffc8c996c987a7c5b319a0083707551"
 dependencies = [
  "backtrace",
  "bytes",
