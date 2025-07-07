@@ -1,4 +1,4 @@
-use actix_web::{error::ResponseError, HttpResponse};
+use actix_web::{HttpResponse, error::ResponseError};
 use derive_more::Display;
 
 #[derive(Debug, Display)]
@@ -16,7 +16,7 @@ impl ResponseError for ApiError {
             ApiError::InternalServerError => {
                 HttpResponse::InternalServerError().json("Internal Server Error")
             }
-            ApiError::BadRequest(ref message) => HttpResponse::BadRequest().json(message),
+            ApiError::BadRequest(message) => HttpResponse::BadRequest().json(message),
         }
     }
 }

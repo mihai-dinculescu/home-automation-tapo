@@ -1,5 +1,5 @@
 use actix::{Actor, Arbiter, System};
-use log::{error, LevelFilter};
+use log::{LevelFilter, error};
 
 use home_automation_tapo::system::coordinator_actor::CoordinatorActor;
 
@@ -27,6 +27,6 @@ fn main() {
     let result = system.run();
 
     if let Err(e) = result {
-        error!("System could not start {}", e);
+        error!("System could not start {e}");
     }
 }

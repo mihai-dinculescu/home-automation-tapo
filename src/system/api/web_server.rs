@@ -1,6 +1,6 @@
 use std::net::TcpListener;
 
-use actix_web::{dev::Server, web, App, HttpServer};
+use actix_web::{App, HttpServer, dev::Server, web};
 use anyhow::Context;
 
 use crate::{settings::Tapo, system::api::handlers};

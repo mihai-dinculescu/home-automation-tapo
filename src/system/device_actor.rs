@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use actix::{clock::interval, Actor, Addr, AsyncContext, Context, Handler, WrapFuture};
+use actix::{Actor, Addr, AsyncContext, Context, Handler, WrapFuture, clock::interval};
 use log::{debug, error};
 use tapo::ApiClient;
 

@@ -1,25 +1,25 @@
 [package]
 name = "home-automation-tapo"
 version = "0.1.2"
-edition = "2021"
+edition = "2024"
 license = "MIT"
 
 [dependencies]
 actix = "0.13"
-actix-web = "4.9"
+actix-web = "4.11"
 anyhow = "1.0"
-config = "0.14"
-derive_more = { version = "1.0", features = ["display"] }
+config = "0.15"
+derive_more = { version = "2.0", features = ["display"] }
 log = "0.4"
-paho-mqtt = "0.12"
+paho-mqtt = "0.13"
 pretty_env_logger = "0.5"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-tapo = "0.7"
+tapo = "0.8"
 
 [dev-dependencies]
 actix-rt = "2.10"
-tokio = { version = "1.41", features = ["rt", "macros"] }
+tokio = { version = "1.46", features = ["rt", "macros"] }
 reqwest = { version = "0.12", default-features = false, features = [
     "json",
     "rustls-tls",
