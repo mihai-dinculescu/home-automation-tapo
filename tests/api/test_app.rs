@@ -20,7 +20,7 @@ impl TestApp {
         tokio::spawn(web_server.run_until_stopped());
 
         Self {
-            address: format!("http://localhost:{}", port),
+            address: format!("http://localhost:{port}"),
         }
     }
 }
