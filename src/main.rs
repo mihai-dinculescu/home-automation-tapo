@@ -1,9 +1,10 @@
-use actix::{Actor, Arbiter, System};
-use log::{LevelFilter, error};
+use actix::Actor;
+use log::{LevelFilter, info};
 
 use home_automation_tapo::system::coordinator_actor::CoordinatorActor;
 
-fn main() {
+#[actix_rt::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let log_level = std::env::var("RUST_LOG")
         .unwrap_or_else(|_| "info".to_string())
         .parse()
@@ -13,20 +14,20 @@ fn main() {
         .filter(Some("home_automation_tapo"), log_level)
         .init();
 
-    let system = System::new();
+    info!("Starting home automation tapo system with Actix-RT on Tokio runtime");
 
-    let execution = async {
-        let coordinator = CoordinatorActor::new();
+    // Start coordinator actor
+    let coordinator = CoordinatorActor::new();
+    coordinator.start();
 
-        coordinator.start();
-    };
+    info!("System started, waiting for shutdown signal...");
 
-    let arbiter = Arbiter::new();
-    arbiter.spawn(execution);
+    // Wait for shutdown signal
+    tokio::signal::ctrl_c()
+        .await
+        .expect("Failed to listen for ctrl+c");
 
-    let result = system.run();
+    info!("Received shutdown signal, shutting down application...");
 
-    if let Err(e) = result {
-        error!("System could not start {e}");
-    }
+    Ok(())
 }
