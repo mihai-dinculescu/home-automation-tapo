@@ -1,16 +1,24 @@
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct Tapo {
-    pub username: String,
-    pub password: String,
-    pub refresh_rate_s: u64,
+pub struct Telemetry {
+    pub service_name: String,
+    pub service_namespace: String,
+    pub deployment_environment: String,
+    pub otlp_endpoint: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Api {
     pub host: String,
     pub port: u16,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Tapo {
+    pub username: String,
+    pub password: String,
+    pub refresh_rate_s: u64,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -28,6 +36,7 @@ pub struct Device {
 
 #[derive(Debug, Deserialize)]
 pub struct Settings {
+    pub telemetry: Telemetry,
     pub api: Api,
     pub tapo: Tapo,
     pub mqtt: Mqtt,

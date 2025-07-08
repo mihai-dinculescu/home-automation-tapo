@@ -20,9 +20,7 @@ pub struct CoordinatorActor {
 }
 
 impl CoordinatorActor {
-    pub fn new() -> Self {
-        let settings = Settings::new().expect("failed to read the settings");
-
+    pub fn new(settings: Settings) -> Self {
         let mqtt_actor = MqttActor::new(settings.mqtt.clone());
         let mqtt_actor_addr = mqtt_actor.start();
 
@@ -35,12 +33,6 @@ impl CoordinatorActor {
             mqtt_actor_addr,
             device_actors: HashMap::new(),
         }
-    }
-}
-
-impl Default for CoordinatorActor {
-    fn default() -> Self {
-        CoordinatorActor::new()
     }
 }
 

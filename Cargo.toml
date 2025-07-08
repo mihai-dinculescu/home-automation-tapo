@@ -1,6 +1,6 @@
 [package]
 name = "home-automation-tapo"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2024"
 license = "MIT"
 
@@ -12,12 +12,22 @@ anyhow = "1.0"
 config = "0.15"
 derive_more = { version = "2.0", features = ["display"] }
 log = "0.4"
+opentelemetry = "0.30"
+opentelemetry_sdk = "0.30"
+opentelemetry-appender-tracing = "0.30"
+opentelemetry-otlp = { version = "0.30", features = ["grpc-tonic"] }
 paho-mqtt = "0.13"
 pretty_env_logger = "0.5"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tapo = "0.8"
 tokio = { version = "1.46", features = ["rt-multi-thread", "macros", "signal"] }
+tracing-subscriber = { version = "0.3", features = [
+    "env-filter",
+    "fmt",
+    "registry",
+    "std",
+] }
 
 [dev-dependencies]
 reqwest = { version = "0.12", default-features = false, features = [
