@@ -2,6 +2,7 @@ use std::net::TcpListener;
 
 use actix_web::{App, HttpServer, dev::Server, web};
 use anyhow::Context;
+use tracing_actix_web::TracingLogger;
 
 use crate::{settings::Tapo, system::api::handlers};
 
@@ -21,6 +22,7 @@ impl WebServer {
 
         let server = HttpServer::new(move || {
             App::new()
+                .wrap(TracingLogger::default())
                 .app_data(data.clone())
                 .route("/health-check", web::get().to(handlers::health_check))
                 .route("/device", web::get().to(handlers::get_device))

@@ -1,5 +1,5 @@
 use actix::{Actor, AsyncContext, Context, WrapFuture};
-use log::debug;
+use tracing::debug;
 
 use crate::settings::{Api, Tapo};
 use crate::system::api::web_server::WebServer;

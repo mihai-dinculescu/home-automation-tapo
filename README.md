@@ -10,7 +10,7 @@ Actor System consisting of:
 
 - Coordinator Actor - makes sure that everything is running as expected
 - Device Actor - reads the device usage and sends it to the MQTT Actor
-- MQTT Actor - published the data to the MQTT broker
+- MQTT Actor - publishes the data to the MQTT broker
 - API Actor - REST API for turning devices on/off and getting their status
 
 ## Usage

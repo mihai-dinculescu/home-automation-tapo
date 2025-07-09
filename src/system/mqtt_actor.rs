@@ -1,9 +1,9 @@
 use actix::{Actor, AsyncContext, Context, Handler, WrapFuture};
-use log::{debug, error, info};
 use paho_mqtt::{AsyncClient, Message, QOS_1};
 use serde::Serialize;
 use serde_json::json;
 use tapo::responses::DeviceUsageEnergyMonitoringResult;
+use tracing::{debug, error, info};
 
 use crate::{
     settings::{Device, Mqtt},
