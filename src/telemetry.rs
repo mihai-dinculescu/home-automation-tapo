@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::sync::OnceLock;
 
 use opentelemetry::trace::TracerProvider;
@@ -5,15 +6,23 @@ use opentelemetry::{KeyValue, global};
 use opentelemetry_otlp::{SpanExporter, WithExportConfig};
 use opentelemetry_sdk::{Resource, propagation::TraceContextPropagator, trace::SdkTracerProvider};
 use opentelemetry_semantic_conventions as semconv;
-use tracing::Level;
+use tracing::{Level, Span};
 use tracing_subscriber::Registry;
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt as _};
 
 use crate::settings::Telemetry;
 
-pub fn init_telemetry(
-    settings: &Telemetry,
-) -> Result<SdkTracerProvider, Box<dyn std::error::Error>> {
+pub fn record_error(span: &Span, e: &impl Error) {
+    span.record(semconv::attribute::OTEL_STATUS_CODE, "ERROR");
+    span.record(
+        semconv::attribute::EXCEPTION_TYPE,
+        "SendError<DeviceUsageMessage>",
+    );
+    span.record(semconv::attribute::EXCEPTION_MESSAGE, e.to_string());
+    span.record(semconv::attribute::EXCEPTION_STACKTRACE, format!("{e:?}"));
+}
+
+pub fn init_telemetry(settings: &Telemetry) -> Result<SdkTracerProvider, Box<dyn Error>> {
     global::set_text_map_propagator(TraceContextPropagator::new());
 
     let exporter = SpanExporter::builder()
@@ -52,9 +61,7 @@ pub fn init_telemetry(
     Ok(tracer_provider)
 }
 
-pub fn shutdown_telemetry(
-    tracer_provider: SdkTracerProvider,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub fn shutdown_telemetry(tracer_provider: SdkTracerProvider) -> Result<(), Box<dyn Error>> {
     // Collect all shutdown errors
     let mut shutdown_errors = Vec::new();
 

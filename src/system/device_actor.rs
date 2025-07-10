@@ -1,14 +1,14 @@
 use std::time::Duration;
 
 use actix::{Actor, Addr, AsyncContext, Context, Handler, WrapFuture, clock::interval};
-use opentelemetry_semantic_conventions as semconv;
 use tapo::ApiClient;
-use tracing::{Instrument, debug, error, instrument};
+use tracing::{Instrument, error, instrument};
 use tracing_opentelemetry::OpenTelemetrySpanExt as _;
 
 use crate::{
     settings::{Device, Tapo},
     system::messages::{DeviceUsageMessage, GetDeviceDataMessage},
+    telemetry::record_error,
 };
 
 use super::coordinator_actor::CoordinatorActor;
@@ -37,15 +37,6 @@ impl DeviceActor {
         }
     }
 
-    #[instrument(name = "DeviceActor::query_device_usage", skip_all, fields(
-        device.name = %device.name,
-        device.ip_address = %device.ip_address,
-        otel.status_code = tracing::field::Empty,
-        error.type = tracing::field::Empty,
-        exception.type = tracing::field::Empty,
-        exception.message = tracing::field::Empty,
-        exception.stacktrace = tracing::field::Empty,
-    ))]
     async fn query_device_usage(
         device: Device,
         tapo_username: String,
@@ -73,19 +64,7 @@ impl DeviceActor {
                 });
 
                 if let Err(e) = result {
-                    span.record(semconv::attribute::OTEL_STATUS_CODE, "ERROR");
-                    span.record(
-                        semconv::attribute::ERROR_TYPE,
-                        "SendError<DeviceUsageMessage>",
-                    );
-                    span.record(
-                        semconv::attribute::EXCEPTION_TYPE,
-                        "SendError<DeviceUsageMessage>",
-                    );
-                    span.record(semconv::attribute::EXCEPTION_MESSAGE, e.to_string());
-                    span.record(semconv::attribute::EXCEPTION_STACKTRACE, format!("{e:?}"));
-                } else {
-                    span.record(semconv::attribute::OTEL_STATUS_CODE, "OK");
+                    record_error(&span, &e);
                 }
             }
             Err(e) => {
@@ -93,11 +72,7 @@ impl DeviceActor {
                     "Failed to query device usage for '{}': {:?}",
                     device.name, e
                 );
-                span.record(semconv::attribute::OTEL_STATUS_CODE, "ERROR");
-                span.record(semconv::attribute::ERROR_TYPE, "tapo::Error");
-                span.record(semconv::attribute::EXCEPTION_TYPE, "tapo::Error");
-                span.record(semconv::attribute::EXCEPTION_MESSAGE, e.to_string());
-                span.record(semconv::attribute::EXCEPTION_STACKTRACE, format!("{e:?}"));
+                record_error(&span, &e);
             }
         }
     }
@@ -106,9 +81,11 @@ impl DeviceActor {
 impl Actor for DeviceActor {
     type Context = Context<Self>;
 
+    #[instrument(name = "DeviceActor::started", skip_all, fields(
+        device.name = %self.device.name,
+        device.ip_address = %self.device.ip_address,
+    ))]
     fn started(&mut self, ctx: &mut Self::Context) {
-        debug!("Device Actor for '{}' started...", self.device.name);
-
         let addr = ctx.address();
         let refresh_rate = Duration::from_secs(self.config.refresh_rate_s);
 
@@ -124,15 +101,13 @@ impl Actor for DeviceActor {
                 let span = tracing::info_span!(
                     "DeviceActor::IntervalTick",
                     otel.kind = "producer",
-                    messaging.system = "actix",
                     messaging.message.id = "GetDeviceDataMessage",
                     messaging.operation.name = "send",
                     messaging.operation.type = "send",
                     messaging.destination.name = "DeviceActor",
                     device.name = %device_name,
                     device.ip_address = %device_ip_address,
-                    status_code = tracing::field::Empty,
-                    error.type = tracing::field::Empty,
+                    otel.status_code = tracing::field::Empty,
                     exception.type = tracing::field::Empty,
                     exception.message = tracing::field::Empty,
                     exception.stacktrace = tracing::field::Empty,
@@ -142,18 +117,7 @@ impl Actor for DeviceActor {
                 if let Err(e) = addr.try_send(GetDeviceDataMessage {
                     span_context: span.context(),
                 }) {
-                    span.record(
-                        semconv::attribute::ERROR_TYPE,
-                        "SendError<GetDeviceDataMessage>",
-                    );
-                    span.record(
-                        semconv::attribute::EXCEPTION_TYPE,
-                        "SendError<GetDeviceDataMessage>",
-                    );
-                    span.record(semconv::attribute::EXCEPTION_MESSAGE, e.to_string());
-                    span.record(semconv::attribute::EXCEPTION_STACKTRACE, format!("{e:?}"));
-                } else {
-                    span.record(semconv::attribute::OTEL_STATUS_CODE, "OK");
+                    record_error(&span, &e);
                 }
             }
         }
@@ -161,10 +125,11 @@ impl Actor for DeviceActor {
 
         ctx.spawn(fut);
     }
-
-    fn stopped(&mut self, _: &mut Self::Context) {
-        debug!("Device Actor for '{}' stopped.", self.device.name);
-    }
+    #[instrument(name = "DeviceActor::stopped", level = "error", skip_all, fields(
+        device.name = %self.device.name,
+        device.ip_address = %self.device.ip_address,
+    ))]
+    fn stopped(&mut self, _: &mut Self::Context) {}
 }
 
 impl Handler<GetDeviceDataMessage> for DeviceActor {
@@ -175,13 +140,16 @@ impl Handler<GetDeviceDataMessage> for DeviceActor {
         skip_all,
         fields(
             otel.kind = "consumer",
-            messaging.system = "actix",
             messaging.message.id = "GetDeviceDataMessage",
             messaging.operation.name = "poll",
             messaging.operation.type = "receive",
             messaging.destination.name = "DeviceActor",
             device.name = %self.device.name,
             device.ip_address = %self.device.ip_address,
+            otel.status_code = tracing::field::Empty,
+            exception.type = tracing::field::Empty,
+            exception.message = tracing::field::Empty,
+            exception.stacktrace = tracing::field::Empty,
         )
     )]
     fn handle(&mut self, message: GetDeviceDataMessage, ctx: &mut Context<Self>) -> Self::Result {

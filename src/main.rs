@@ -14,7 +14,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("Starting home automation tapo system with Actix-RT on Tokio runtime");
 
     // Start coordinator actor
-    let coordinator = CoordinatorActor::new(settings);
+    let coordinator =
+        CoordinatorActor::new(settings).expect("Failed to create the CoordinatorActor");
     coordinator.start();
 
     info!("System started, waiting for shutdown signal...");

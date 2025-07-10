@@ -3,8 +3,8 @@ use std::time::Duration;
 
 use actix::clock::interval;
 use actix::{Actor, Addr, AsyncContext, Context, Handler, WrapFuture};
-use opentelemetry_semantic_conventions as semconv;
-use tracing::{debug, info, instrument, warn};
+use anyhow::Context as _;
+use tracing::{info, instrument, warn};
 use tracing_opentelemetry::OpenTelemetrySpanExt;
 
 use crate::settings::Settings;
@@ -12,6 +12,7 @@ use crate::system::api::api_actor::ApiActor;
 use crate::system::device_actor::DeviceActor;
 use crate::system::messages::{DeviceUsageMessage, HealthCheckMessage};
 use crate::system::mqtt_actor::MqttActor;
+use crate::telemetry::record_error;
 
 #[derive(Debug)]
 pub struct CoordinatorActor {
@@ -22,28 +23,39 @@ pub struct CoordinatorActor {
 }
 
 impl CoordinatorActor {
-    pub fn new(settings: Settings) -> Self {
-        let mqtt_actor = MqttActor::new(settings.mqtt.clone());
+    #[instrument(name = "CoordinatorActor::new", skip_all, fields(
+        otel.status_code = tracing::field::Empty,
+        exception.type = tracing::field::Empty,
+        exception.message = tracing::field::Empty,
+        exception.stacktrace = tracing::field::Empty,
+    ))]
+    pub fn new(settings: Settings) -> anyhow::Result<Self> {
+        let span = tracing::Span::current();
+
+        let mqtt_actor = MqttActor::new(settings.mqtt.clone())
+            .inspect_err(|e| {
+                record_error(&span, &e);
+            })
+            .context("Failed to create the MQTT actor")?;
         let mqtt_actor_addr = mqtt_actor.start();
 
         let api_actor = ApiActor::new(settings.api.clone(), settings.tapo.clone());
         let api_actor_addr = api_actor.start();
 
-        Self {
+        Ok(Self {
             settings,
             api_actor_addr,
             mqtt_actor_addr,
             device_actors: HashMap::new(),
-        }
+        })
     }
 }
 
 impl Actor for CoordinatorActor {
     type Context = Context<Self>;
 
+    #[instrument(name = "CoordinatorActor::started", skip_all)]
     fn started(&mut self, ctx: &mut Self::Context) {
-        debug!("Coordinator Actor started...");
-
         let addr = ctx.address();
 
         let fut = async move {
@@ -55,12 +67,11 @@ impl Actor for CoordinatorActor {
                 let span = tracing::info_span!(
                     "CoordinatorActor::IntervalTick",
                     otel.kind = "producer",
-                    messaging.system = "actix",
                     messaging.message.id = "HealthCheckMessage",
                     messaging.operation.name = "send",
                     messaging.operation.type = "send",
                     messaging.destination.name = "CoordinatorActor",
-                    error.type = tracing::field::Empty,
+                    otel.status_code = tracing::field::Empty,
                     exception.type = tracing::field::Empty,
                     exception.message = tracing::field::Empty,
                     exception.stacktrace = tracing::field::Empty,
@@ -70,16 +81,7 @@ impl Actor for CoordinatorActor {
                 if let Err(e) = addr.try_send(HealthCheckMessage {
                     span_context: span.context(),
                 }) {
-                    span.record(
-                        semconv::attribute::ERROR_TYPE,
-                        "SendError<HealthCheckMessage>",
-                    );
-                    span.record(
-                        semconv::attribute::EXCEPTION_TYPE,
-                        "SendError<HealthCheckMessage>",
-                    );
-                    span.record(semconv::attribute::EXCEPTION_MESSAGE, e.to_string());
-                    span.record(semconv::attribute::EXCEPTION_STACKTRACE, format!("{e:?}"));
+                    record_error(&span, &e);
                 }
             }
         }
@@ -88,9 +90,8 @@ impl Actor for CoordinatorActor {
         ctx.spawn(fut);
     }
 
-    fn stopped(&mut self, _: &mut Self::Context) {
-        debug!("Coordinator Actor stopped.");
-    }
+    #[instrument(name = "CoordinatorActor::stopped", level = "error", skip_all)]
+    fn stopped(&mut self, _: &mut Self::Context) {}
 }
 
 impl Handler<HealthCheckMessage> for CoordinatorActor {
@@ -101,7 +102,6 @@ impl Handler<HealthCheckMessage> for CoordinatorActor {
         skip_all,
         fields(
             otel.kind = "consumer",
-            messaging.system = "actix",
             messaging.message.id = "HealthCheckMessage",
             messaging.operation.name = "poll",
             messaging.operation.type = "receive",
@@ -121,7 +121,8 @@ impl Handler<HealthCheckMessage> for CoordinatorActor {
         // check mqtt
         if !self.mqtt_actor_addr.connected() {
             warn!("MQTT Actor is not connected, restarting...");
-            let mqtt_actor = MqttActor::new(self.settings.mqtt.clone());
+            let mqtt_actor = MqttActor::new(self.settings.mqtt.clone())
+                .expect("failed to create the MQTT client");
             self.mqtt_actor_addr = mqtt_actor.start();
         }
 
@@ -171,14 +172,13 @@ impl Handler<DeviceUsageMessage> for CoordinatorActor {
         skip_all,
         fields(
             otel.kind = "consumer",
-            messaging.system = "actix",
             messaging.message.id = "DeviceUsageMessage",
             messaging.operation.name = "poll",
             messaging.operation.type = "receive",
             messaging.destination.name = "CoordinatorActor",
             device.name = %message.device.name,
             device.ip_address = %message.device.ip_address,
-            error.type = tracing::field::Empty,
+            otel.status_code = tracing::field::Empty,
             exception.type = tracing::field::Empty,
             exception.message = tracing::field::Empty,
             exception.stacktrace = tracing::field::Empty,
@@ -197,16 +197,7 @@ impl Handler<DeviceUsageMessage> for CoordinatorActor {
         });
 
         if let Err(e) = result {
-            span.record(
-                semconv::attribute::ERROR_TYPE,
-                "SendError<DeviceUsageMessage>",
-            );
-            span.record(
-                semconv::attribute::EXCEPTION_TYPE,
-                "SendError<DeviceUsageMessage>",
-            );
-            span.record(semconv::attribute::EXCEPTION_MESSAGE, e.to_string());
-            span.record(semconv::attribute::EXCEPTION_STACKTRACE, format!("{e:?}"));
+            record_error(&span, &e);
         }
     }
 }
