@@ -96,7 +96,7 @@ impl Handler<DeviceUsageMessage> for MqttActor {
     )]
     fn handle(&mut self, message: DeviceUsageMessage, ctx: &mut Context<Self>) -> Self::Result {
         let span = tracing::Span::current();
-        span.set_parent(message.span_context);
+        let _ = span.set_parent(message.span_context);
 
         let client = self.client.clone();
         let topic_name = self.config.topic_name.clone();

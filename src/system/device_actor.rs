@@ -154,7 +154,7 @@ impl Handler<GetDeviceDataMessage> for DeviceActor {
     )]
     fn handle(&mut self, message: GetDeviceDataMessage, ctx: &mut Context<Self>) -> Self::Result {
         let span = tracing::Span::current();
-        span.set_parent(message.span_context);
+        let _ = span.set_parent(message.span_context);
 
         let device = self.device.clone();
         let tapo_username = self.config.username.clone();

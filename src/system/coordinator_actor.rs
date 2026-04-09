@@ -109,7 +109,7 @@ impl Handler<HealthCheckMessage> for CoordinatorActor {
         )
     )]
     fn handle(&mut self, message: HealthCheckMessage, ctx: &mut Context<Self>) -> Self::Result {
-        tracing::Span::current().set_parent(message.span_context);
+        let _ = tracing::Span::current().set_parent(message.span_context);
 
         // check api
         if !self.api_actor_addr.connected() {
@@ -186,7 +186,7 @@ impl Handler<DeviceUsageMessage> for CoordinatorActor {
     )]
     fn handle(&mut self, message: DeviceUsageMessage, _: &mut Context<Self>) -> Self::Result {
         let span = tracing::Span::current();
-        span.set_parent(message.span_context);
+        let _ = span.set_parent(message.span_context);
 
         let result = self.mqtt_actor_addr.try_send({
             DeviceUsageMessage {
