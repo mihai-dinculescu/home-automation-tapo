@@ -1,10 +1,10 @@
 # Caching stage
-FROM lukemathwalker/cargo-chef:latest-rust-1.88 AS planner
+FROM lukemathwalker/cargo-chef:latest-rust-1.94 AS planner
 WORKDIR /app
 COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
-FROM lukemathwalker/cargo-chef:latest-rust-1.88 AS cacher
+FROM lukemathwalker/cargo-chef:latest-rust-1.94 AS cacher
 
 RUN apt-get update && \
     apt-get -y upgrade && \
@@ -16,7 +16,7 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 
 # Builder stage
-FROM rust:1.88 AS builder
+FROM rust:1.94 AS builder
 
 RUN rustup component add rustfmt
 WORKDIR /app
@@ -26,7 +26,7 @@ COPY --from=cacher $CARGO_HOME $CARGO_HOME
 RUN cargo build --release
 
 # Runtime stage
-FROM debian:bookworm-slim AS runtime
+FROM debian:trixie-slim AS runtime
 
 RUN apt-get update && \
     apt-get -y upgrade && \
