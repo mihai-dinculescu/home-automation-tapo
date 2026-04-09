@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
         - name: tapo
-          image: ghcr.io/mihai-dinculescu/home-automation-tapo
+          image: ghcr.io/mihai-dinculescu-lab/home-automation-tapo
           imagePullPolicy: Always
           volumeMounts:
             - name: tapo-config

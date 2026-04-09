@@ -47,8 +47,7 @@ impl Settings {
     pub fn new() -> Result<Self, anyhow::Error> {
         let base_path = std::env::current_dir().expect("failed to determine the current directory");
 
-        let mut builder =
-            config::Config::builder().set_default("telemetry.otlp_endpoint", None::<String>)?;
+        let mut builder = config::Config::builder();
 
         let config_path = base_path.join("settings.yaml");
         builder = builder.add_source(config::File::new(

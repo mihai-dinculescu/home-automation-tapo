@@ -10,7 +10,7 @@ commonLabels:
   app.kubernetes.io/name: tapo
 
 images:
-  - name: ghcr.io/mihai-dinculescu/home-automation-tapo
+  - name: ghcr.io/mihai-dinculescu-lab/home-automation-tapo
     newTag: "main"
 
 secretGenerator:
