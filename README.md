@@ -30,12 +30,6 @@ docker build -t home-automation-tapo .
 docker run -d -p 80:80 home-automation-tapo
 ```
 
-### linux/arm/v7
-
-```bash
-docker build -f Dockerfile-ARMv7.dockerfile -t home-automation-tapo .
-docker run -d -p 80:80 home-automation-tapo
-```
 
 [ci_badge]: https://github.com/mihai-dinculescu/home-automation-tapo/workflows/CI/badge.svg?branch=main
 [ci]: https://github.com/mihai-dinculescu/home-automation-tapo/actions
