@@ -36,6 +36,17 @@ jobs:
       - name: Run test
         run: cargo make test
 
+  arc-runner-test:
+    name: ARC runner smoke test
+    runs-on: arc-runner-set
+    steps:
+      - uses: actions/checkout@v6
+      - name: Runner info
+        run: |
+          echo "Runner: $RUNNER_NAME"
+          echo "OS: $(uname -a)"
+          echo "Arch: $(uname -m)"
+
   docker-build:
     name: Docker (${{ matrix.platform }})
     needs: checks
