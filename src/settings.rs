@@ -5,7 +5,6 @@ pub struct Telemetry {
     pub service_name: String,
     pub service_namespace: String,
     pub deployment_environment: String,
-    #[serde(default)]
     pub otlp_endpoint: Option<String>,
 }
 
@@ -48,7 +47,8 @@ impl Settings {
     pub fn new() -> Result<Self, anyhow::Error> {
         let base_path = std::env::current_dir().expect("failed to determine the current directory");
 
-        let mut builder = config::Config::builder();
+        let mut builder =
+            config::Config::builder().set_default("telemetry.otlp_endpoint", None::<String>)?;
 
         let config_path = base_path.join("settings.yaml");
         builder = builder.add_source(config::File::new(
