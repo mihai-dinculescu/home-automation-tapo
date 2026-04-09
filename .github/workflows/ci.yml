@@ -149,7 +149,7 @@ jobs:
           docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
 
   deploy:
-    name: Deploy to Kubernetes
+    name: Deploy
     runs-on: arc-runner-set
     needs: docker-publish
     if: github.ref == 'refs/heads/main'
