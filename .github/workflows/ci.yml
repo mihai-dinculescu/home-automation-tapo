@@ -156,6 +156,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable-1.30.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+
       - name: Write settings secret
         run: echo "$TAPO_SETTINGS" > kubernetes/settings.yaml
         env:
