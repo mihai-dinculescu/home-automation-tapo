@@ -36,17 +36,6 @@ jobs:
       - name: Run test
         run: cargo make test
 
-  arc-runner-test:
-    name: ARC runner smoke test
-    runs-on: arc-runner-set
-    steps:
-      - uses: actions/checkout@v6
-      - name: Runner info
-        run: |
-          echo "Runner: $RUNNER_NAME"
-          echo "OS: $(uname -a)"
-          echo "Arch: $(uname -m)"
-
   docker-build:
     name: Docker (${{ matrix.platform }})
     needs: checks
@@ -158,3 +147,25 @@ jobs:
       - name: Inspect image
         run: |
           docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: arc-runner-set
+    needs: docker-publish
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Write settings secret
+        run: echo "$TAPO_SETTINGS" > kubernetes/settings.yaml
+        env:
+          TAPO_SETTINGS: ${{ secrets.TAPO_SETTINGS_YAML }}
+
+      - name: Apply manifests
+        run: kubectl apply -k kubernetes/
+
+      - name: Restart deployment
+        run: kubectl rollout restart deployment/home-automation-tapo -n default
+
+      - name: Wait for rollout
+        run: kubectl rollout status deployment/home-automation-tapo -n default --timeout=120s

@@ -1,0 +1,21 @@
+resources:
+  - deployment.yaml
+
+namePrefix: home-automation-
+
+namespace: default
+
+commonLabels:
+  app.kubernetes.io/part-of: home-automation
+  app.kubernetes.io/name: tapo
+
+images:
+  - name: ghcr.io/mihai-dinculescu/home-automation-tapo
+    newTag: "main"
+
+secretGenerator:
+  - name: tapo-secrets
+    files:
+      - settings.yaml
+    options:
+      disableNameSuffixHash: true

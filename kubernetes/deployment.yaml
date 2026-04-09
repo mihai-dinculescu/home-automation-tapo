@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tapo
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: tapo
+    spec:
+      containers:
+        - name: tapo
+          image: ghcr.io/mihai-dinculescu/home-automation-tapo
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: tapo-config
+              mountPath: /app/settings.yaml
+              subPath: settings.yaml
+              readOnly: true
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "32Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          livenessProbe:
+            httpGet:
+              path: /health-check
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 5
+      volumes:
+        - name: tapo-config
+          secret:
+            secretName: tapo-secrets
+            items:
+              - key: settings.yaml
+                path: settings.yaml
