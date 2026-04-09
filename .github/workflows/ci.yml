@@ -158,7 +158,8 @@ jobs:
 
       - name: Install kubectl
         run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable-1.30.txt)/bin/linux/amd64/kubectl"
+          ARCH=$(uname -m | sed 's/x86_64/amd64/' | sed 's/aarch64/arm64/')
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable-1.30.txt)/bin/linux/${ARCH}/kubectl"
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
 
