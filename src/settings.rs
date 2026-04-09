@@ -5,6 +5,7 @@ pub struct Telemetry {
     pub service_name: String,
     pub service_namespace: String,
     pub deployment_environment: String,
+    #[serde(default)]
     pub otlp_endpoint: Option<String>,
 }
 
