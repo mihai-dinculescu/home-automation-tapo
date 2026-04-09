@@ -7,7 +7,7 @@ license = "MIT"
 [dependencies]
 actix = "0.13"
 actix-rt = "2.11"
-actix-web = "4.11"
+actix-web = "4.13"
 anyhow = "1.0"
 config = "0.15"
 derive_more = { version = "2.1", features = ["display"] }
