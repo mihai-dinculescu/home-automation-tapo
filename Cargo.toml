@@ -10,7 +10,7 @@ actix-rt = "2.10"
 actix-web = "4.11"
 anyhow = "1.0"
 config = "0.15"
-derive_more = { version = "2.0", features = ["display"] }
+derive_more = { version = "2.1", features = ["display"] }
 opentelemetry = "0.30"
 opentelemetry_sdk = "0.30"
 opentelemetry-otlp = { version = "0.30", features = ["grpc-tonic"] }
