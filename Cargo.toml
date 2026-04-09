@@ -11,7 +11,7 @@ actix-web = "4.11"
 anyhow = "1.0"
 config = "0.15"
 derive_more = { version = "2.1", features = ["display"] }
-opentelemetry = "0.30"
+opentelemetry = "0.31"
 opentelemetry_sdk = "0.30"
 opentelemetry-otlp = { version = "0.30", features = ["grpc-tonic"] }
 opentelemetry-semantic-conventions = { version = "0.31", features = [
