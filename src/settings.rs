@@ -5,7 +5,7 @@ pub struct Telemetry {
     pub service_name: String,
     pub service_namespace: String,
     pub deployment_environment: String,
-    pub otlp_endpoint: String,
+    pub otlp_endpoint: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

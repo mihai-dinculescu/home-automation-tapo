@@ -28,7 +28,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("Received shutdown signal, shutting down application...");
 
     // Shutdown telemetry
-    shutdown_telemetry(tracer_provider)?;
+    if let Some(tracer_provider) = tracer_provider {
+        shutdown_telemetry(tracer_provider)?;
+    }
 
     Ok(())
 }

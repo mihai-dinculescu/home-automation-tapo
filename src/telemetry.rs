@@ -22,34 +22,41 @@ pub fn record_error(span: &Span, e: &impl Error) {
     span.record(semconv::attribute::EXCEPTION_STACKTRACE, format!("{e:?}"));
 }
 
-pub fn init_telemetry(settings: &Telemetry) -> Result<SdkTracerProvider, Box<dyn Error>> {
-    global::set_text_map_propagator(TraceContextPropagator::new());
-
-    let exporter = SpanExporter::builder()
-        .with_tonic()
-        .with_endpoint(settings.otlp_endpoint.clone())
-        .build()
-        .expect("Failed to create span exporter");
-
-    let tracer_provider = SdkTracerProvider::builder()
-        .with_resource(get_resource(settings))
-        .with_batch_exporter(exporter)
-        .build();
-
-    let tracer = tracer_provider.tracer(settings.service_name.clone());
-
+pub fn init_telemetry(settings: &Telemetry) -> Result<Option<SdkTracerProvider>, Box<dyn Error>> {
     let filter_layer = EnvFilter::try_from_default_env()
         .unwrap_or(EnvFilter::new(Level::INFO.to_string()))
         // .add_directive("reqwest=off".parse()?)
         ;
-
-    let tracing_layer = tracing_opentelemetry::layer().with_tracer(tracer);
 
     let format_layer = tracing_subscriber::fmt::layer()
         .with_thread_names(true)
         .with_line_number(true)
         // .with_span_events(FmtSpan::ACTIVE)
         ;
+
+    let (tracing_layer, tracer_provider) = if let Some(otlp_endpoint) = &settings.otlp_endpoint {
+        global::set_text_map_propagator(TraceContextPropagator::new());
+
+        let exporter = SpanExporter::builder()
+            .with_tonic()
+            .with_endpoint(otlp_endpoint.clone())
+            .build()
+            .expect("Failed to create span exporter");
+
+        let provider = SdkTracerProvider::builder()
+            .with_resource(get_resource(settings))
+            .with_batch_exporter(exporter)
+            .build();
+
+        let tracer = provider.tracer(settings.service_name.clone());
+
+        (
+            Some(tracing_opentelemetry::layer().with_tracer(tracer)),
+            Some(provider),
+        )
+    } else {
+        (None, None)
+    };
 
     let subscriber = Registry::default()
         .with(filter_layer)
