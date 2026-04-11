@@ -1,7 +1,6 @@
 resources:
   - deployment.yaml
-
-namePrefix: home-automation-
+  - vault-secret.yaml
 
 namespace: default
 
@@ -12,10 +11,3 @@ commonLabels:
 images:
   - name: ghcr.io/mihai-dinculescu-lab/home-automation-tapo
     newTag: "main"
-
-secretGenerator:
-  - name: tapo-secrets
-    files:
-      - settings.yaml
-    options:
-      disableNameSuffixHash: true

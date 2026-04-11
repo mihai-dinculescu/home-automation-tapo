@@ -163,11 +163,6 @@ jobs:
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
 
-      - name: Write settings secret
-        run: echo "$TAPO_SETTINGS" > kubernetes/settings.yaml
-        env:
-          TAPO_SETTINGS: ${{ secrets.TAPO_SETTINGS_YAML }}
-
       - name: Apply manifests
         run: kubectl apply -k kubernetes/
 

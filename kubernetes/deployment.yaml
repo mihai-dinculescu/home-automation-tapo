@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tapo
+  name: home-automation-tapo
 spec:
   replicas: 1
   template:
     metadata:
-      name: tapo
+      name: home-automation-tapo
     spec:
       containers:
         - name: tapo
@@ -33,7 +33,7 @@ spec:
       volumes:
         - name: tapo-config
           secret:
-            secretName: tapo-secrets
+            secretName: home-automation-tapo-secrets
             items:
               - key: settings.yaml
                 path: settings.yaml
