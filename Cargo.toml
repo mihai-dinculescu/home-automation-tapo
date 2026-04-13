@@ -9,7 +9,7 @@ actix = "0.13"
 actix-rt = "2.11"
 actix-web = "4.13"
 anyhow = "1.0"
-config = "0.15"
+config = { version = "0.15", default-features = false, features = ["yaml"] }
 derive_more = { version = "2.1", features = ["display"] }
 opentelemetry = "0.31"
 opentelemetry_sdk = "0.31"
