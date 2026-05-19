@@ -25,7 +25,7 @@ tokio = { version = "1.51", features = ["rt-multi-thread", "macros", "signal"] }
 tracing = { version = "0.1", features = ["attributes"] }
 tracing-actix = "0.4"
 tracing-actix-web = "0.7"
-tracing-opentelemetry = "0.32"
+tracing-opentelemetry = "0.33"
 tracing-subscriber = { version = "0.3", features = [
     "env-filter",
     "fmt",
